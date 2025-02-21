@@ -17,63 +17,54 @@ import           AlwaysSucceeds
 import qualified Data.ByteString.Short       as Short
 import qualified Data.Set                    as Set
 import           PlutusLedgerApi.Common      (serialiseCompiledCode)
+import           PlutusTx                    (BuiltinData)
 import           PlutusTx.Blueprint
 import           System.Environment          (getArgs)
-
--- BEGIN contract blueprint declaration
 
 myContractBlueprint :: ContractBlueprint
 myContractBlueprint =
   MkContractBlueprint
-    { contractId = Just "my-contract"
-    , contractPreamble = myPreamble -- defined below
-    , contractValidators = Set.singleton myValidator -- defined below
-    , contractDefinitions = deriveDefinitions @[MyDatum, MyRedeemer]
+    { contractId = Just "always-succeeds-validator"
+    , contractPreamble = myPreamble
+    , contractValidators = Set.singleton myValidator
+    , contractDefinitions = deriveDefinitions @'[]
     }
-
--- END contract blueprint declaration
--- BEGIN preamble declaration
 
 myPreamble :: Preamble
 myPreamble =
   MkPreamble
-    { preambleTitle = "My Contract"
-    , preambleDescription = Just "A simple contract"
-    , preambleVersion = "1.0.0"
+    { preambleTitle = "Always Succeeds Validator"
+    , preambleDescription =
+        Just "Blueprint for a Plutus script that always validates"
+    , preambleVersion = "1.1.0"
     , preamblePlutusVersion = PlutusV3
     , preambleLicense = Just "MIT"
     }
 
--- END preamble declaration
--- BEGIN validator blueprint declaration
 myValidator :: ValidatorBlueprint referencedTypes
 myValidator =
   MkValidatorBlueprint
-    { validatorTitle = "AlwaysSucceeds Validator"
-    , validatorDescription = Just "An example validator"
-    , validatorParameters = []
+    { validatorTitle = "Always Succeeds Validator"
+    , validatorDescription =
+        Just "Plutus script that always validates any transaction"
+    , validatorParameters = []  -- No parameters needed
     , validatorRedeemer =
         MkArgumentBlueprint
-          { argumentTitle = Just "My Redeemer"
-          , argumentDescription = Just "A redeemer that does something awesome"
-          , argumentPurpose = Set.fromList [Spend, Mint]
-          , argumentSchema = definitionRef @MyRedeemer
+          { argumentTitle = Just "Redeemer"
+          , argumentDescription = Just "Redeemer for the always succeeding validator"
+          , argumentPurpose = Set.fromList [Spend]
+          , argumentSchema = definitionRef @BuiltinData
           }
     , validatorDatum =
-        Just
-          MkArgumentBlueprint
-            { argumentTitle = Just "My Datum"
-            , argumentDescription = Just "A datum that contains something awesome"
-            , argumentPurpose = Set.singleton Spend
-            , argumentSchema = definitionRef @MyDatum
-            }
-    , validatorCompiled = do
-        let script = alwaysSucceedsScript
-        let code = Short.fromShort (serialiseCompiledCode script)
-        Just (compiledValidator PlutusV3 code)
+        Just $ MkArgumentBlueprint
+          { argumentTitle = Just "Datum"
+          , argumentDescription = Just "Datum for the always succeeding validator"
+          , argumentPurpose = Set.fromList [Spend]
+          , argumentSchema = definitionRef @BuiltinData
+          }
+    , validatorCompiled =
+        Just $ compiledValidator PlutusV3 (Short.fromShort (serialiseCompiledCode alwaysSucceedsScript))
     }
-
--- END validator blueprint declaration
 
 writeBlueprintToFile :: FilePath -> IO ()
 writeBlueprintToFile path = writeBlueprint path myContractBlueprint
