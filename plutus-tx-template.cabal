@@ -15,7 +15,7 @@ library scripts
   exposed-modules:
     AuctionMintingPolicy
     AuctionValidator
-
+    AlwaysSucceeds
   build-depends:
     , base
     , plutus-core ^>=1.40.0.0
@@ -43,6 +43,20 @@ executable gen-minting-policy-blueprint
   import:           options
   hs-source-dirs:   app
   main-is:          GenMintingPolicyBlueprint.hs
+  build-depends:
+    , base
+    , bytestring
+    , containers
+    , plutus-core ^>=1.40.0.0
+    , plutus-ledger-api ^>=1.40.0.0
+    , plutus-tx ^>=1.40.0.0
+    , plutus-tx-plugin ^>=1.40.0.0
+    , scripts
+
+executable gen-always-succeeds-blueprint
+  import:           options
+  hs-source-dirs:   app
+  main-is:          GenAlwaysSucceedsBlueprint.hs
   build-depends:
     , base
     , bytestring
