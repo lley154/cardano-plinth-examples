@@ -57,12 +57,22 @@ devnet:default>info
 [💡 n2n port] localhost:3001
 [💡 n2c port (socat)] localhost:3333
 ```
+
 #### Plinth (PlutusTx) Setup
-TODO
+$ git clone https://github.com/lley154/my-project.git
+$ cd my-project
+$ docker run \
+  -v /home/lawrence/src/my-project:/workspaces/my-project  \
+  -it ghcr.io/input-output-hk/devx-devcontainer:x86_64-linux.ghc96-iog
+$ cd /workspaces/my-project
+$ cabal update
+$ cabal run always-succeed-blueprint -- ./output/always-succeeds-blueprint.json
+
 
 #### Install NPM and Node modules
 Open a new terminal window
 ```
+$ cd my-project
 $ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 ```
 Close and then open a new terminal window

@@ -26,6 +26,7 @@ const networkId = 0; // set to 0 for testnet, 1 for mainnet
 describe('E2E AlwaysSucceeds Test', () => {
     console.log("AlwaysSucceeds E2E Test Started");
 
+    // Only use for yaci devkit testing
     beforeAll(async () => {
         const address = wallet.getChangeAddress();
         console.log("Wallet Address:", address);

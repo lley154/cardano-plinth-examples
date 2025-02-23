@@ -32,8 +32,9 @@ describe('E2E Faucet Test', () => {
     const withdrawalAmount = 100n;
     const faucetLockedAmount = 1000000n;
 
+    // Only use for yaci devkit testing
     beforeAll(async () => {
-const address = wallet.getChangeAddress();
+        const address = wallet.getChangeAddress();
         console.log("Wallet Address:", address);
         await provider.addressTopup(address, "200_000") 
         await provider.addressTopup(address, "5_000")
