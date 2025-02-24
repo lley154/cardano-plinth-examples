@@ -23,6 +23,7 @@ import {
 } from "@meshsdk/core";
 
 import alwaysSucceedsBlueprint from "../off-chain/always-succeeds-blueprint.json";
+import secretNumberPolicyBlueprint from "../off-chain/secret-number-policy-blueprint.json";
 import faucetBlueprint from "../off-chain/faucet-blueprint.json";
 
 const languageVersion = "V3";
@@ -58,6 +59,16 @@ export const newWallet = (providedMnemonic?: string[]) => {
   return wallet;
 };
 
+const alwaysSucceedsContractCbor = () => {
+  let scriptCbor = alwaysSucceedsBlueprint.validators[0]!.compiledCode;
+  return scriptCbor;
+};
+
+const secretNumberContractCbor = () => {
+  let scriptCbor = secretNumberPolicyBlueprint.validators[0]!.compiledCode;
+  return applyCborEncoding(scriptCbor);
+};
+
 const mintContractCbor = (
     tokenNameHex: string,
     utxoTxHash: string,
@@ -72,11 +83,6 @@ const mintContractCbor = (
       "JSON",
     );
   };
-
-const alwaysSucceedsContractCbor = () => {
-    let scriptCbor = alwaysSucceedsBlueprint.validators[0]!.compiledCode;
-    return scriptCbor;
-};
 
 const faucetContractCbor = (tokenNameHex: string, policyId: string) => {
     let scriptCbor = faucetBlueprint.validators[2]!.compiledCode;
@@ -234,6 +240,55 @@ export class MeshTx {
           }
       };
 
+      mintSecretNumber = async (
+        tokenName: string,
+        quantity: bigint,
+      ) => {
+        try {
+            const walletAddress = this.wallet.getChangeAddress();
+            console.log("WalletAddress:", walletAddress);
+            const tokenNameHex = stringToHex(tokenName);
+            const utxos = await this.provider.fetchAddressUTxOs(walletAddress);
+            if (utxos.length < 1) throw new Error("No UTXOs available");
+    
+            const mintTokenScript = secretNumberContractCbor();
+          
+            const mintTokenPolicy = resolveScriptHash(
+              mintTokenScript,
+              languageVersion,
+            );
+
+            // Log for debugging
+            console.log("Building secret number mint transaction...");
+            console.log("MintTokenPolicy:", mintTokenPolicy);
+            console.log("TokenNameHex:", tokenNameHex);
+            console.log("Quantity:", quantity);
+            const txBuilder = await this.newValidationTx();
+            const txHex = await txBuilder
+                .mintPlutusScript(languageVersion)
+                .mint(quantity.toString(), mintTokenPolicy, tokenNameHex)
+                .mintingScript(mintTokenScript)
+                .mintRedeemerValue(1618033988)
+                .txOut(walletAddress, [
+                    { unit: "lovelace", quantity: "2000000" },
+                    { unit: mintTokenPolicy + tokenNameHex, quantity: quantity.toString() },
+                  ])
+                .complete();
+
+            console.log("Transaction built successfully");
+            const singedTx = await this.wallet.signTx(txHex);
+            const txHash = await this.wallet.submitTx(singedTx);
+            return {
+                txHash,
+                tokenNameHex,
+                mintTokenPolicy,
+            };
+        } catch (error) {
+            console.error("Error in secret number mint transaction:", error);
+            throw error;
+        }
+    };
+
     mint = async (
         tokenName: string,
         quantity: bigint,
@@ -281,6 +336,8 @@ export class MeshTx {
                 .complete();
 
             console.log("Transaction built successfully");
+            console.log("txHex:", txHex);
+
             const singedTx = await this.wallet.signTx(txHex);
             const txHash = await this.wallet.submitTx(singedTx);
             return {

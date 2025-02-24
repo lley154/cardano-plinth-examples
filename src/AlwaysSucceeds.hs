@@ -2,6 +2,7 @@
 {-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE NoImplicitPrelude   #-}
 {-# LANGUAGE NumericUnderscores  #-}
+{-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell     #-}
 {-# LANGUAGE TypeApplications    #-}
@@ -9,7 +10,8 @@
 {-# LANGUAGE ViewPatterns        #-}
 
 {-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:target-version=1.1.0 #-}
-{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:remove-trace #-}
+--{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:remove-trace #-}
+{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:preserve-logging #-}
 
 module AlwaysSucceeds where
 
@@ -19,7 +21,8 @@ import PlutusLedgerApi.Data.V3 qualified as V3Data
 import PlutusTx (CompiledCode, compile)
 
 typedValidator :: V3.Datum -> V3.Redeemer-> Bool
-typedValidator _datum _redeemer = True
+typedValidator _datum _redeemer = 
+  True
 
 untypedValidator :: BuiltinData -> BuiltinUnit
 untypedValidator scriptContext =
