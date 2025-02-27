@@ -17,7 +17,6 @@ import           SecretNumberMintingPolicy
 import qualified Data.ByteString.Short       as Short
 import qualified Data.Set                    as Set
 import           PlutusLedgerApi.Common      (serialiseCompiledCode)
---import           PlutusTx                    (BuiltinData)
 import           PlutusTx.Blueprint
 import           System.Environment          (getArgs)
 

@@ -15,10 +15,18 @@
 
 module AlwaysSucceedsValidator where
 
-import PlutusTx.Prelude (Bool, Bool(..), BuiltinData, BuiltinUnit, check, Maybe(Just), ($))
+import PlutusTx (CompiledCode, compile)
+import PlutusTx.Prelude
+    ( Bool
+    , Bool(..)
+    , BuiltinData
+    , BuiltinUnit
+    , Maybe(Just)
+    , check
+    , ($)
+    )
 import PlutusLedgerApi.V3 qualified as V3
 import PlutusLedgerApi.Data.V3 qualified as V3Data
-import PlutusTx (CompiledCode, compile)
 
 typedValidator :: V3.Datum -> V3.Redeemer-> Bool
 typedValidator _datum _redeemer = 

@@ -1,6 +1,5 @@
 import {
     applyCborEncoding,
-    applyParamsToScript,
     parseDatumCbor
 } from "@meshsdk/core-csl";
 import {
@@ -428,10 +427,6 @@ export class MeshTx {
             console.log("Current FaucetAmount:", faucetAmount);
             const faucetAmountInt = BigInt(faucetAmount ?? 0);
             const remainingFaucetAmount = faucetAmountInt - withdrawalAmount;
-
-            const balance = await this.getFaucetTokenBalance(faucetTokenNameHex, faucetTokenPolicy);
-            console.log(`Faucet token balance: ${balance}`);
-
             const txBuilder = await this.newValidationTx();
 
             // Log for debugging
@@ -478,29 +473,6 @@ export class MeshTx {
             }
         } catch (error) {
             console.error("Error in withdrawal transaction:", error);
-            throw error;
-        }
-    };
-
-    getFaucetTokenBalance = async (
-        faucetTokenNameHex: string,
-        faucetTokenPolicy: string
-    ): Promise<bigint> => {
-        try {
-            const walletAddress = this.wallet.getChangeAddress();
-            const utxos = await this.provider.fetchAddressUTxOs(walletAddress);
-            
-            // Sum up all faucet tokens across UTXOs
-            const totalAmount = utxos.reduce((sum, utxo) => {
-                const faucetToken = utxo.output.amount.find(
-                    asset => asset.unit === faucetTokenPolicy + faucetTokenNameHex
-                );
-                return sum + BigInt(faucetToken?.quantity || 0);
-            }, BigInt(0));
-
-            return totalAmount;
-        } catch (error) {
-            console.error("Error fetching faucet token balance:", error);
             throw error;
         }
     };

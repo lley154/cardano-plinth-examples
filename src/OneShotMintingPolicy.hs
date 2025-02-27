@@ -28,18 +28,39 @@
 
 module OneShotMintingPolicy where
 
+-- Standard library imports
 import GHC.Generics (Generic)
 
+-- External library imports
 import PlutusCore.Version (plcVersion110)
-
-import PlutusLedgerApi.V1.Value(geq, leq) 
+import PlutusLedgerApi.V1.Value (geq, leq)
 import PlutusLedgerApi.V3 qualified as V3
 import PlutusLedgerApi.V3.Contexts qualified as V3Contexts
 import PlutusLedgerApi.Data.V3 qualified as V3Data
-import PlutusTx (CompiledCode, compile, liftCode, makeLift, makeIsDataSchemaIndexed, unsafeApplyCode)
+import PlutusTx 
+    ( CompiledCode
+    , compile
+    , liftCode
+    , makeLift
+    , makeIsDataSchemaIndexed
+    , unsafeApplyCode
+    )
 import PlutusTx.AssocMap qualified as Map
-import PlutusTx.Prelude (any, Bool, Bool(..), BuiltinData, BuiltinUnit, check, Maybe(Just, Nothing), mempty, traceIfFalse, (==), ($), (&&))
+import PlutusTx.Prelude 
+    ( Bool(..)
+    , BuiltinData
+    , BuiltinUnit
+    , Maybe(Just, Nothing)
+    , any
+    , check
+    , mempty
+    , traceIfFalse
+    , (&&)
+    , ($)
+    , (==)
+    )
 
+-- Internal imports
 import PlutusTx.Blueprint
 
 data OneShotMintingParams = OneShotMintingParams { utxoRef :: V3.TxOutRef} 

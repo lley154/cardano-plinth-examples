@@ -28,10 +28,23 @@
 
 module SecretNumberMintingPolicy where
 
+-- External library imports
 import PlutusLedgerApi.V3 qualified as V3
 import PlutusLedgerApi.Data.V3 qualified as V3Data
-import PlutusTx (CompiledCode, compile)
-import PlutusTx.Prelude (Bool, Bool(..), BuiltinData, BuiltinUnit, check, Integer, traceIfFalse, (==), ($))
+import PlutusTx 
+    ( CompiledCode
+    , compile
+    )
+import PlutusTx.Prelude 
+    ( Bool(..)
+    , BuiltinData
+    , BuiltinUnit
+    , Integer
+    , check
+    , traceIfFalse
+    , ($)
+    , (==)
+    )
 
 
 {-# INLINEABLE secretNumberTypedMintingPolicy #-}
