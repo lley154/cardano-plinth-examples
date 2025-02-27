@@ -32,7 +32,7 @@ import GHC.Generics (Generic)
 
 import PlutusCore.Version (plcVersion110)
 
---import PlutusLedgerApi.V2 qualified as V2
+import PlutusLedgerApi.V1.Value(geq, leq) 
 import PlutusLedgerApi.V3 qualified as V3
 import PlutusLedgerApi.V3.Contexts qualified as V3Contexts
 import PlutusLedgerApi.Data.V3 qualified as V3Data
@@ -63,10 +63,10 @@ oneShotTypedMintingPolicy ::
     Bool
 oneShotTypedMintingPolicy params redeemer ctx =
     case redeemer of    
-        MintToken tn -> traceIfFalse "UTXO not found" hasUTxO -- &&
-                        --traceIfFalse "Invalid minted amount" (checkMintedAmount tn)
+        MintToken tn -> traceIfFalse "UTXO not found" hasUTxO &&
+                        traceIfFalse "Invalid minted amount" (checkMintedAmount tn)
 
-        BurnToken tn -> True --traceIfFalse "Invalid burned amount" (checkBurnedAmount tn)
+        BurnToken tn -> traceIfFalse "Invalid burned amount" (checkBurnedAmount tn)
     where
         info :: V3.TxInfo
         info = V3.scriptContextTxInfo ctx
@@ -81,10 +81,10 @@ oneShotTypedMintingPolicy params redeemer ctx =
         hasUTxO = any (\i -> V3.txInInfoOutRef i == utxoRef params) $ V3.txInfoInputs info
 
         checkMintedAmount :: V3.TokenName -> Bool
-        checkMintedAmount tokenName = currencyValueOf minted ownSymbol == V3.singleton ownSymbol tokenName 1
+        checkMintedAmount tokenName = geq (currencyValueOf minted ownSymbol) (V3.singleton ownSymbol tokenName 1)
 
         checkBurnedAmount :: V3.TokenName -> Bool
-        checkBurnedAmount tokenName = currencyValueOf minted ownSymbol == V3.singleton ownSymbol tokenName (-1)
+        checkBurnedAmount tokenName = leq (currencyValueOf minted ownSymbol) (V3.singleton ownSymbol tokenName (-1))
 
 
 {-# INLINABLE currencyValueOf #-}
