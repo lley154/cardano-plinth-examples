@@ -13,7 +13,7 @@
 
 module Main where
 
-import           AlwaysSucceeds
+import           AlwaysSucceedsValidator
 import qualified Data.ByteString.Short       as Short
 import qualified Data.Set                    as Set
 import           PlutusLedgerApi.Common      (serialiseCompiledCode)

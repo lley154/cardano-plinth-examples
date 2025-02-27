@@ -11,20 +11,19 @@ import {
     MeshWallet,
     MeshTxBuilder,
     mConStr0,
-    builtinByteString,
     PlutusScript,
     serializePlutusScript,
     stringToHex,
-    outputReference,
     resolveScriptHash,
     Integer,
     ConStr0,
     MConStr0,
 } from "@meshsdk/core";
 
-import alwaysSucceedsBlueprint from "../off-chain/always-succeeds-blueprint.json";
+import alwaysSucceedsBlueprint from "../off-chain/always-succeeds-validator-blueprint.json";
 import secretNumberPolicyBlueprint from "../off-chain/secret-number-policy-blueprint.json";
-import faucetBlueprint from "../off-chain/faucet-blueprint.json";
+import faucetBlueprint from "../off-chain/faucet-validator-blueprint.json";
+import oneShotMintingBlueprint from "../off-chain/one-shot-minting-policy-blueprint.json";
 
 const languageVersion = "V3";
 
@@ -69,24 +68,26 @@ const secretNumberContractCbor = () => {
   return applyCborEncoding(scriptCbor);
 };
 
-const mintContractCbor = (
-    tokenNameHex: string,
-    utxoTxHash: string,
-    utxoTxId: number,
-  ) => {
+const oneShotMintingContractCbor = (
+  utxoTxHash: string,
+  utxoTxId: number,
+) => {
+    let scriptCbor = oneShotMintingBlueprint.validators[0]!.compiledCode;
+    // Replace the dummy UTXO with the actual UTXO at runtime
+    scriptCbor = scriptCbor.replace(/9999999999999999999999999999999999999999999999999999999999999999/, utxoTxHash);
+    scriptCbor = scriptCbor.replace(/00480008a002005001109480140041/, '00480' + (utxoTxId * 8).toString(16).padStart(2, '0') + '8' + 'a002005001109480140041');
+
+    return applyCborEncoding(scriptCbor);
+
+};
+
+const faucetContractCbor = (accessTokenPolicy: string, faucetTokenPolicy: string) => {
     let scriptCbor = faucetBlueprint.validators[0]!.compiledCode;
-    let utxo = outputReference(utxoTxHash, utxoTxId);
-
-    return applyParamsToScript(
-      scriptCbor,
-      [builtinByteString(tokenNameHex), utxo],
-      "JSON",
-    );
-  };
-
-const faucetContractCbor = (tokenNameHex: string, policyId: string) => {
-    let scriptCbor = faucetBlueprint.validators[2]!.compiledCode;
-    return applyParamsToScript(scriptCbor, [tokenNameHex, policyId]);
+    // Replace the dummy accessToken and faucetToken minting policy with runtime values
+    scriptCbor = scriptCbor.replace(/99999999999999999999999999999999999999999999999999999999/, accessTokenPolicy);
+    scriptCbor = scriptCbor.replace(/88888888888888888888888888888888888888888888888888888888/, faucetTokenPolicy);
+    
+    return applyCborEncoding(scriptCbor);
 };
 
 export class MeshTx {
@@ -301,11 +302,10 @@ export class MeshTx {
             if (utxos.length < 1) throw new Error("No UTXOs available");
             const firstUtxo = utxos[0];
 
-            const mintTokenScript = mintContractCbor(
-                tokenNameHex,
-                firstUtxo?.input.txHash ?? '',
-                firstUtxo?.input.outputIndex ?? 0,
-              );
+            const mintTokenScript = oneShotMintingContractCbor(
+              firstUtxo?.input.txHash ?? '', 
+              firstUtxo?.input.outputIndex ?? 0
+            );
             
             const mintTokenPolicy = resolveScriptHash(
                 mintTokenScript,
@@ -328,7 +328,7 @@ export class MeshTx {
                 .mintPlutusScript(languageVersion)
                 .mint(quantity.toString(), mintTokenPolicy, tokenNameHex)
                 .mintingScript(mintTokenScript)
-                .mintRedeemerValue(mConStr0([]))
+                .mintRedeemerValue(mConStr0([tokenNameHex]))
                 .txOut(walletAddress, [
                     { unit: "lovelace", quantity: "2000000" },
                     { unit: mintTokenPolicy + tokenNameHex, quantity: quantity.toString() },
@@ -336,8 +336,6 @@ export class MeshTx {
                 .complete();
 
             console.log("Transaction built successfully");
-            console.log("txHex:", txHex);
-
             const singedTx = await this.wallet.signTx(txHex);
             const txHash = await this.wallet.submitTx(singedTx);
             return {
@@ -430,6 +428,10 @@ export class MeshTx {
             console.log("Current FaucetAmount:", faucetAmount);
             const faucetAmountInt = BigInt(faucetAmount ?? 0);
             const remainingFaucetAmount = faucetAmountInt - withdrawalAmount;
+
+            const balance = await this.getFaucetTokenBalance(faucetTokenNameHex, faucetTokenPolicy);
+            console.log(`Faucet token balance: ${balance}`);
+
             const txBuilder = await this.newValidationTx();
 
             // Log for debugging
@@ -476,6 +478,29 @@ export class MeshTx {
             }
         } catch (error) {
             console.error("Error in withdrawal transaction:", error);
+            throw error;
+        }
+    };
+
+    getFaucetTokenBalance = async (
+        faucetTokenNameHex: string,
+        faucetTokenPolicy: string
+    ): Promise<bigint> => {
+        try {
+            const walletAddress = this.wallet.getChangeAddress();
+            const utxos = await this.provider.fetchAddressUTxOs(walletAddress);
+            
+            // Sum up all faucet tokens across UTXOs
+            const totalAmount = utxos.reduce((sum, utxo) => {
+                const faucetToken = utxo.output.amount.find(
+                    asset => asset.unit === faucetTokenPolicy + faucetTokenNameHex
+                );
+                return sum + BigInt(faucetToken?.quantity || 0);
+            }, BigInt(0));
+
+            return totalAmount;
+        } catch (error) {
+            console.error("Error fetching faucet token balance:", error);
             throw error;
         }
     };

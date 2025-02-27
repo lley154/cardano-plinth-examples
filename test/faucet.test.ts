@@ -39,7 +39,7 @@ describe('E2E Faucet Test', () => {
         await provider.addressTopup(address, "200_000") 
         await provider.addressTopup(address, "5_000")
         await sleep(2);
-    });
+    },100000);
 
     afterAll(async () => {
         console.log("Faucet E2E Test Finished");
@@ -75,7 +75,7 @@ describe('E2E Faucet Test', () => {
         console.log({ result });
         await sleep(2);
     }, 100000);
-
+    
     it('Withdrawal Faucet Token', async() => {
         console.log('\n--- Before Withdrawal Faucet Token Tx ---');
         const tx = new MeshTx(wallet, provider, networkId);

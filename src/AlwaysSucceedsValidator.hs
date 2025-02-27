@@ -13,7 +13,7 @@
 --{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:remove-trace #-}
 {-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:preserve-logging #-}
 
-module AlwaysSucceeds where
+module AlwaysSucceedsValidator where
 
 import PlutusTx.Prelude (Bool, Bool(..), BuiltinData, BuiltinUnit, check, Maybe(Just), ($))
 import PlutusLedgerApi.V3 qualified as V3

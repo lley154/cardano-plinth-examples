@@ -13,9 +13,9 @@ library scripts
   import:         options
   hs-source-dirs: src
   exposed-modules:
-    AuctionMintingPolicy
-    AuctionValidator
-    AlwaysSucceeds
+    AlwaysSucceedsValidator
+    FaucetValidator
+    OneShotMintingPolicy
     SecretNumberMintingPolicy
   build-depends:
     , base
@@ -26,10 +26,11 @@ library scripts
   if !(impl(ghcjs) || os(ghcjs))
     build-depends: plutus-tx-plugin
 
-executable gen-auction-validator-blueprint
+
+executable gen-secret-number-minting-policy-blueprint
   import:           options
   hs-source-dirs:   app
-  main-is:          GenAuctionValidatorBlueprint.hs
+  main-is:          GenSecretNumberMintingPolicyBlueprint.hs
   build-depends:
     , base
     , bytestring
@@ -40,10 +41,10 @@ executable gen-auction-validator-blueprint
     , plutus-tx-plugin ^>=1.40.0.0
     , scripts
 
-executable gen-minting-policy-blueprint
+executable gen-always-succeeds-validator-blueprint
   import:           options
   hs-source-dirs:   app
-  main-is:          GenMintingPolicyBlueprint.hs
+  main-is:          GenAlwaysSucceedsValidatorBlueprint.hs
   build-depends:
     , base
     , bytestring
@@ -54,10 +55,10 @@ executable gen-minting-policy-blueprint
     , plutus-tx-plugin ^>=1.40.0.0
     , scripts
 
-executable gen-always-succeeds-blueprint
+executable gen-faucet-validator-blueprint
   import:           options
   hs-source-dirs:   app
-  main-is:          GenAlwaysSucceedsBlueprint.hs
+  main-is:          GenFaucetValidatorBlueprint.hs
   build-depends:
     , base
     , bytestring
@@ -68,10 +69,10 @@ executable gen-always-succeeds-blueprint
     , plutus-tx-plugin ^>=1.40.0.0
     , scripts
 
-executable gen-secret-number-policy-blueprint
+executable gen-one-shot-minting-policy-blueprint
   import:           options
   hs-source-dirs:   app
-  main-is:          GenSecretNumberPolicyBlueprint.hs
+  main-is:          GenOneShotMintingPolicyBlueprint.hs
   build-depends:
     , base
     , bytestring
