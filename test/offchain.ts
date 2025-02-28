@@ -335,6 +335,7 @@ export class MeshTx {
                 .complete();
 
             console.log("Transaction built successfully");
+            //console.log("Transaction Hex:", txHex);
             const singedTx = await this.wallet.signTx(txHex);
             const txHash = await this.wallet.submitTx(singedTx);
             return {
@@ -466,6 +467,7 @@ export class MeshTx {
                 .complete();
 
             console.log("Transaction built successfully");
+            //console.log("Transaction Hex:", txHex);
             const singedTx = await this.wallet.signTx(txHex);
             const txHash = await this.wallet.submitTx(singedTx);
             return {
