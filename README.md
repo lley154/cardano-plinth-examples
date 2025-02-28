@@ -161,7 +161,7 @@ Convert the cbor into a flat hex format using the following website
 - select and copy the flat hex content on the right hand side
 
 ![image](https://github.com/user-attachments/assets/54e9bf03-e5ff-4c32-89d7-2f2fc07a908e)
-- create a new file called faucet.hex and paste the flat hex contents into it
+- create a new file called ```faucet.hex``` and paste the flat hex contents into it
 
 Now issue the following commands
 ```
