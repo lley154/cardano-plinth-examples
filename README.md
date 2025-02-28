@@ -186,7 +186,7 @@ Predicted execution time: 4.544 μs
 
 ## Confirming the protocol parameters
 ```
-lawrence@lawrence-MacBookAir7-2:~/tmp$ docker ps
+lawrence@lawrence-MacBookAir7-2:~/src/cardano-plinth-examples$ docker ps
 CONTAINER ID   IMAGE                                                              COMMAND                  CREATED      STATUS        PORTS                                                                                                                                                                      NAMES
 c619fbc1c318   ghcr.io/input-output-hk/devx-devcontainer:x86_64-linux.ghc96-iog   "/bin/bash"              7 days ago   Up 12 hours                                                                                                                                                                              gallant_varahamihira
 af9e019fe37a   bloxbean/yaci-cli:0.10.0-preview5                                  "sleep infinity"         9 days ago   Up 12 hours   0.0.0.0:1337->1337/tcp, 0.0.0.0:1442->1442/tcp, 0.0.0.0:3001->3001/tcp, 0.0.0.0:3333->3333/tcp, 0.0.0.0:8080->8080/tcp, 0.0.0.0:8090->8090/tcp, 0.0.0.0:10000->10000/tcp   node1-yaci-cli-1
