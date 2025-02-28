@@ -1,3 +1,3 @@
-# Plutus Tx Template Codeowners
+# Cardano Plinth Examples
 
-* @zeme-wana
+* @lley154

@@ -77,7 +77,6 @@ import PlutusTx.Prelude
     , (&&)
     , (==)
     , (>=)
-    , (<=)
     , (-)
     )
 

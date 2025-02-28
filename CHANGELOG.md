@@ -1,5 +1,5 @@
-# Plutus Tx Template Changelog
+# Cardano Plinth Examples
 
-## 12 Sep 2024
+## 28 Feb 2025
 
 Created CHANGELOG.md 

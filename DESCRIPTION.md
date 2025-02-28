@@ -1,5 +1,5 @@
-# Plutus Tx Template
+# Cardano Plinth Examples
 
-This is a template repository for kickstarting your `plutus-tx` smart contract project.
+A repository for some examples using Plinth (PlutusTx)
 
 Please refer to the [README.md](./README.md) for more information. 
