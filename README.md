@@ -25,7 +25,7 @@ Inside the container run the following commands
 ## Generating Blueprints
 The cabal build will take a while and once it is completed, you should be able to execute the following commands to generate the blueprint files.
 ```
-[workspaces/cardano-plinth-examples] cabal run faucet-validator-blueprint -- ./off-chain/faucet-validator-blueprint.json
+[workspaces/cardano-plinth-examples] cabal run gen-faucet-validator-blueprint -- ./off-chain/faucet-validator-blueprint.json
 ```
 
 ## Running a local Cardano devnet
@@ -139,17 +139,19 @@ In a new terminal window
 ```
 $ cd ~/src/cardano-plinth-examples
 $ sudo apt update
-$ sudo apt-install wget
-$ sudo apt-install jq
+$ sudo apt install wget
+$ sudo apt install jq
 $ wget https://github.com/IntersectMBO/plutus/releases/download/1.40.0.0/uplc-x86_64-linux-ghc96
 $ chmod u+x uplc-x86_64-linux-ghc96
-$ cat off-chain/faucet-validator-blueprint.json | jq -r .validators[0].compiledCode > faucet.cbor
+$ cat off-chain/faucet-validator-blueprint.json | jq -jr .validators[0].compiledCode > faucet.cbor
 ```
 
 Convert the cbor into a flat hex format using the following website
 - https://cbor.nemo157.com/
 - copy and paste the contents for faucet.cbor
+- unselect the annotate button on the top right side
 - select and copy the flat hex content on the right hand side
+
 ![image](https://github.com/user-attachments/assets/54e9bf03-e5ff-4c32-89d7-2f2fc07a908e)
 - create a new file called faucet.hex and paste the flat hex contents into it
 
@@ -157,7 +159,7 @@ Now issue the following commands
 ```
 $ xxd -r -p faucet.hex faucet.flat
 $ ./uplc-x86_64-linux-ghc96 convert -i faucet.flat --if flat > faucet.uplc
-$ ./uplc-x86_64-linux-ghc96 evaluate -i faucet.flat --if flat
+$ ./uplc-x86_64-linux-ghc96 evaluate -t -i faucet.flat --if flat
 CPU budget:    4544100
 Memory budget: 28500
 
@@ -204,9 +206,4 @@ root@af9e019fe37a:/app#
     "maxTxSize": 16384,
 
 ```
-
-
-
-
-
 
