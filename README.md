@@ -1,5 +1,5 @@
 # Cardano Plinth (PlutusTx) Examples
-## Sections
+### Sections
 - Setup
 - Compile Plinth
 - Running Local Devnet
