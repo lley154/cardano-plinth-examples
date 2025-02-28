@@ -7,10 +7,12 @@ Run the docker desktop appication to confirm that docker engine is able to start
 
 In a terminal window on the host machine
 ```
+$ mkdir ~/src
+$ cd ~/src
 $ git clone https://github.com/lley154/cardano-plinth-examples
 $ cd cardano-plinth-examples
 $ docker run \
-  -v /paht-to-woring-directory/cardano-plinth-examples:/workspaces/cardano-plinth-examples  \
+  -v /absolute-path-to-src-directory/src/cardano-plinth-examples:/workspaces/cardano-plinth-examples  \
   -it ghcr.io/input-output-hk/devx-devcontainer:x86_64-linux.ghc96-iog
 ```
 ## Compiling Haskell Files
@@ -29,6 +31,7 @@ The cabal build will take a while and once it is completed, you should be able t
 ## Running a local Cardano devnet
 In new a terminal window, download the yaci-devkit Github repo
 ```
+$ cd ~/src
 $ git clone https://github.com/bloxbean/yaci-devkit.git
 $ cd yaci-devkit
 $ git checkout v0.10.0-preview5
@@ -81,6 +84,7 @@ devnet:default>info
 ## Test the contracts
 Launch a new terminal window on your host machine
 ```
+$ cd ~/src
 $ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 ```
 Close and then reopen a new terminal window
@@ -128,6 +132,79 @@ You can also go to the Yaci viewer http://localhost:5173/ and view the transacti
 ![image](https://github.com/user-attachments/assets/871ee952-9945-4d79-9ad3-ad569252a911)
 
 ![image](https://github.com/user-attachments/assets/9c6c96e5-ae4b-4a92-8a81-54c97d47387f)
+
+
+## Profiling the contract
+In a new terminal window
+```
+$ cd ~/src/cardano-plinth-examples
+$ sudo apt update
+$ sudo apt-install wget
+$ sudo apt-install jq
+$ wget https://github.com/IntersectMBO/plutus/releases/download/1.40.0.0/uplc-x86_64-linux-ghc96
+$ chmod u+x uplc-x86_64-linux-ghc96
+$ cat off-chain/faucet-validator-blueprint.json | jq -r .validators[0].compiledCode > faucet.cbor
+```
+
+Convert the cbor into a flat hex format using the following website
+- https://cbor.nemo157.com/
+- copy and paste the contents for faucet.cbor
+- select and copy the flat hex content on the right hand side
+![image](https://github.com/user-attachments/assets/54e9bf03-e5ff-4c32-89d7-2f2fc07a908e)
+- create a new file called faucet.hex and paste the flat hex contents into it
+
+Now issue the following commands
+```
+$ xxd -r -p faucet.hex faucet.flat
+$ ./uplc-x86_64-linux-ghc96 convert -i faucet.flat --if flat > faucet.uplc
+$ ./uplc-x86_64-linux-ghc96 evaluate -i faucet.flat --if flat
+CPU budget:    4544100
+Memory budget: 28500
+
+Const                32000              200
+Var                 880000             5500
+LamAbs             1920000            12000
+Apply              1488000             9300
+Delay               192000             1200
+Force                16000              100
+Builtin                  0                0
+Constr               16000              100
+Case                     0                0
+
+startup                100              100
+compute            4544000            28400
+AST nodes             4911
+
+
+
+Total builtin costs:                 0                0
+Time spent executing builtins:  0.00%
+
+Total budget spent:            4544100            28500
+Predicted execution time: 4.544 μs
+```
+
+## Confirming the protocol parameters
+```
+lawrence@lawrence-MacBookAir7-2:~/tmp$ docker ps
+CONTAINER ID   IMAGE                                                              COMMAND                  CREATED      STATUS        PORTS                                                                                                                                                                      NAMES
+c619fbc1c318   ghcr.io/input-output-hk/devx-devcontainer:x86_64-linux.ghc96-iog   "/bin/bash"              7 days ago   Up 12 hours                                                                                                                                                                              gallant_varahamihira
+af9e019fe37a   bloxbean/yaci-cli:0.10.0-preview5                                  "sleep infinity"         9 days ago   Up 12 hours   0.0.0.0:1337->1337/tcp, 0.0.0.0:1442->1442/tcp, 0.0.0.0:3001->3001/tcp, 0.0.0.0:3333->3333/tcp, 0.0.0.0:8080->8080/tcp, 0.0.0.0:8090->8090/tcp, 0.0.0.0:10000->10000/tcp   node1-yaci-cli-1
+b74ba32968d4   bloxbean/yaci-viewer:0.10.0-preview5                               "docker-entrypoint.s…"   9 days ago   Up 12 hours   0.0.0.0:5173->5173/tcp                                                                                                                                                     node1-yaci-viewer-1
+lawrence@lawrence-MacBookAir7-2:~/src/cardano-plinth-examples$ docker exec -it node1-yaci-cli-1 bash
+root@af9e019fe37a:/app# 
+  
+# cardano-cli query protocol-parameters --testnet-magic 42
+
+...
+    "maxTxExecutionUnits": {
+        "memory": 14000000,
+        "steps": 10000000000
+    },
+    "maxTxSize": 16384,
+
+```
+
 
 
 
