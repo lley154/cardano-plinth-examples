@@ -1,4 +1,12 @@
 # Cardano Plinth (PlutusTx) Examples
+## Sections
+- Setup
+- Compile Plinth
+- Running Local Devnet
+- Execute Test Cases
+- Profiling a Smart Contract
+
+
 ## Setup
 Install docker desktop for either Mac, Windows or Linux https://docs.docker.com/desktop/
 
